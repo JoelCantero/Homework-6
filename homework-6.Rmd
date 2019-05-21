@@ -1,0 +1,82 @@
+---
+title: "Homework 6"
+author: "Marc Mendez & Joel Cantero"
+date: "5th May, 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+First of all, we are going to install and load all the libraries we need for this exercise.
+
+```{r installing-packages, message=FALSE, results=FALSE, warning=FALSE}
+packages <- c("FactoMineR", "arules")
+for (package in packages) {
+    if(!require(package,  character.only=TRUE)){
+        install.packages(package, repos="http://cran.rstudio.com")
+        library(package,  character.only=TRUE)
+    } 
+}
+```
+
+
+##1. Read the file: tic_tt.csv. Check the "class"" of every variable of tic_tt.
+
+First of all we need to check the data and we can see that all the variables are booleans or factors with more than 2 levels. So, for loading the data, we will set the classes as factors and set the first one as row names because they are numbers that don't give information to the study. We will make a summary of it and analize all the results to see that the load has been succesfull.
+```{r echo=FALSE, warning=FALSE}
+tic <- read.csv("tic_tt.csv", sep=";", colClasses = c(rep("factor",33)), row.names=1)
+
+summary(tic)
+```
+##2. Find the profile of the people who do payments by Internet (use the function catdes of FactoMineR). (to perform the catdes of a variable, it should be categorical (factor in the R nomenclature).
+```{r}
+a <- catdes(tic, 28)
+plot(a)
+```
+##3. Convert the tic_tt file to a transactions file.
+
+```{r}
+tic.trans <- as(tic, "transactions")
+tic.trans
+
+itemFrequency(tic.trans)
+```
+
+##4. Define the parameters: Min_support, min_confidence and m??ximum size of itemsets, and run the apriori function.
+
+```{r}
+minSupp <- 0.01
+minConf <- 0.4
+maxSize <- 5
+rules <- apriori (tic.trans, parameter = list (support=minSupp, confidence=minConf, maxlen = maxSize))
+inspect(rules[1:10])
+names(tic_tt)
+```
+
+##5. List the 10 most frequent itemsets.
+```{r}
+fsets <- unique(generatingItemsets(rules))
+fsets.df <- as(fsets, "data.frame")
+sor.fsets <- fsets.df[order(-fsets.df$support),]
+sor.fsets[1:10,]
+```
+
+##6. List the first 10 rules sorted by the lift.
+
+```{r}
+top10.lift <- inspect(sort(rules, by="lift")[1:10])
+```
+
+##7. List the 10 rules according the lift, where the Consequent is "Pagament.a.traves.d.Internet.".
+
+```{r}
+rulesConseq <- subset(rules, subset = rhs %in% c("Pagament.a.trav.s.d.Internet.=FALSE") )
+
+top10.lift.Conseq <- inspect(sort(rulesConseq, by="lift")[1:10] )
+```
