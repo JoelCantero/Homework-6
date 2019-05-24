@@ -9,12 +9,15 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
 ```
 
 
 First of all, we are going to install and load all the libraries we need for this exercise. The factominer library is needed for the catdes function, which is needed on exercise 2. Then the arules function is needed to the the association rules.
-
 
 ```{r installing-packages, message=FALSE, results=FALSE, warning=FALSE}
 packages <- c("FactoMineR", "arules")
@@ -26,13 +29,12 @@ for (package in packages) {
 }
 ```
 
-
 ##1. Read the file: tic_tt.csv. Check the "class"" of every variable of tic_tt.
-
 First of all we need to check the data and we can see that all the variables are booleans or factors with more than 2 levels. So, for loading the data, we will set the classes as factors and set the first one as row names because they are numbers that don't give information to the study. We will make a summary of it and analize all the results to see that the load has been succesfull.
-```{r echo=FALSE, warning=FALSE}
+
+```{r, results=FALSE}
 tic <- read.csv("tic_tt.csv", sep=";", colClasses = c(rep("factor",33)), row.names=1)
-summary(tic)
+#summary(tic)
 ```
 ##2. Find the profile of the people who do payments by Internet (use the function catdes of FactoMineR). (to perform the catdes of a variable, it should be categorical (factor in the R nomenclature).
 To study the profile of the people who do payments by Internet we are going to execute the catdes function over the variable "Pagament.a.trav.s.d.Internet.". By doing this we can see the variables that have a realtion with this one.
@@ -40,27 +42,31 @@ To study the profile of the people who do payments by Internet we are going to e
 a <- catdes(tic, 28)
 plot(a)
 ```
+
 As we can see in this plot the users that make payments through internet use electronic payments services and also they use internet every day. Most of them know English so there is a relation with the language also.
 We can see that, on the other hand, people that not pay through internet tend to not have electronic payment services as well as few usage of e-mail. And also they don't speak English, which makes sense as english is the most common language on the computers world. We can notice that there are differences between users that do payments on internet and people that not. 
+
 ##3. Convert the tic_tt file to a transactions file.
-To do this convestion we will use as() funtion. This conversion is to make the association rules after.To do this conversion we needed to delete the first column as it wasn't a factor and have all the other columns as factors.
+
+
+To do this convestion we will use as() funtion. This conversion is to make the association rules after.To do this 
+conversion we needed to delete the first column as it wasn't a factor and have all the other columns as factors.
 ```{r}
 tic.trans <- as(tic, "transactions")
-tic.trans
-
-itemFrequency(tic.trans)
 ```
 
 ##4. Define the parameters: Min_support, min_confidence and maximum size of itemsets, and run the apriori function.
 Now that we have the transaction file we are going to execute it with the function apriori from the package "arules". To execute this we set the min support, min confidence and maximum size of the rules. The more precise we make the variables the larger number of rules we are going to obtain and longer time will last to calculate it.
-```{r}
+```{r ,results=FALSE, warning=FALSE}
 minSupp <- 0.3
 minConf <- 0.75
 maxSize <- 5
-rules <- apriori (tic.trans, parameter = list (support=minSupp, confidence=minConf, maxlen = maxSize))
-inspect(rules[1:10])
+rules <- apriori (tic.trans, parameter = list 
+                  (support=minSupp, confidence=minConf, maxlen = maxSize))
+```
 
-summary(rules)
+```{r, echo=FALSE,}
+inspect(rules[1:10])
 ```
 
 We have set this parameters as the next questions doesn't require to have large amount of solutions and this ones are more than enough for it.
@@ -74,6 +80,8 @@ sor.fsets <- fsets.df[order(-fsets.df$support),]
 sor.fsets[1:10,1]
 ```
 As we can see on this list, the most repeated itemsets are those ones above.
+
+
 ##6. List the first 10 rules sorted by the lift.
 To make this sorting we need to order by lift. 
 ```{r}
@@ -84,6 +92,5 @@ top10.lift <- inspect(sort(rules, by="lift")[1:10])
 On this part we first need to create a subset with only the rules that have "Pagament.a.traves.d.Internet." as the Consequent. Then, once the subset is created we proceed on doing the same as the last exercise, order by lift and thats all.
 ```{r}
 rulesConseq <- subset(rules, subset = rhs %in% c("Pagament.a.trav.s.d.Internet.=FALSE") )
-
 top10.lift.Conseq <- inspect(sort(rulesConseq, by="lift")[1:10] )
 ```
