@@ -43,7 +43,7 @@ plot(a)
 As we can see in this plot the users that make payments through internet use electronic payments services and also they use internet every day. Most of them know English so there is a relation with the language also.
 We can see that, on the other hand, people that not pay through internet tend to not have electronic payment services as well as few usage of e-mail. And also they don't speak English, which makes sense as english is the most common language on the computers world. We can notice that there are differences between users that do payments on internet and people that not. 
 ##3. Convert the tic_tt file to a transactions file.
-
+To do this convestion we will use as() funtion from the library arules. This conversion is to make the association rules after.To do this conversion we needed to delete the first column as it wasn't a factor and have all the other columns as factors.
 ```{r}
 tic.trans <- as(tic, "transactions")
 tic.trans
