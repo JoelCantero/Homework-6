@@ -32,14 +32,16 @@ for (package in packages) {
 First of all we need to check the data and we can see that all the variables are booleans or factors with more than 2 levels. So, for loading the data, we will set the classes as factors and set the first one as row names because they are numbers that don't give information to the study. We will make a summary of it and analize all the results to see that the load has been succesfull.
 ```{r echo=FALSE, warning=FALSE}
 tic <- read.csv("tic_tt.csv", sep=";", colClasses = c(rep("factor",33)), row.names=1)
-
 summary(tic)
 ```
 ##2. Find the profile of the people who do payments by Internet (use the function catdes of FactoMineR). (to perform the catdes of a variable, it should be categorical (factor in the R nomenclature).
+To study the profile of the people who do payments by Internet we are going to execute the catdes function over the variable "Pagament.a.trav.s.d.Internet.". By doing this we can see the variables that have a realtion with this one.
 ```{r}
 a <- catdes(tic, 28)
 plot(a)
 ```
+As we can see in this plot the users that make payments through internet use electronic payments services and also they use internet every day. Most of them know English so there is a relation with the language also.
+We can see that, on the other hand, people that not pay through internet tend to not have electronic payment services as well as few usage of e-mail. And also they don't speak English, which makes sense as english is the most common language on the computers world. We can notice that there are differences between users that do payments on internet and people that not. 
 ##3. Convert the tic_tt file to a transactions file.
 
 ```{r}
