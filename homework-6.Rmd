@@ -43,7 +43,7 @@ plot(a)
 As we can see in this plot the users that make payments through internet use electronic payments services and also they use internet every day. Most of them know English so there is a relation with the language also.
 We can see that, on the other hand, people that not pay through internet tend to not have electronic payment services as well as few usage of e-mail. And also they don't speak English, which makes sense as english is the most common language on the computers world. We can notice that there are differences between users that do payments on internet and people that not. 
 ##3. Convert the tic_tt file to a transactions file.
-To do this convestion we will use as() funtion from the library arules. This conversion is to make the association rules after.To do this conversion we needed to delete the first column as it wasn't a factor and have all the other columns as factors.
+To do this convestion we will use as() funtion. This conversion is to make the association rules after.To do this conversion we needed to delete the first column as it wasn't a factor and have all the other columns as factors.
 ```{r}
 tic.trans <- as(tic, "transactions")
 tic.trans
@@ -51,33 +51,37 @@ tic.trans
 itemFrequency(tic.trans)
 ```
 
-##4. Define the parameters: Min_support, min_confidence and m??ximum size of itemsets, and run the apriori function.
-
+##4. Define the parameters: Min_support, min_confidence and maximum size of itemsets, and run the apriori function.
+Now that we have the transaction file we are going to execute it with the function apriori from the package "arules". To execute this we set the min support, min confidence and maximum size of the rules. The more precise we make the variables the larger number of rules we are going to obtain and longer time will last to calculate it.
 ```{r}
-minSupp <- 0.01
-minConf <- 0.4
+minSupp <- 0.3
+minConf <- 0.75
 maxSize <- 5
 rules <- apriori (tic.trans, parameter = list (support=minSupp, confidence=minConf, maxlen = maxSize))
 inspect(rules[1:10])
-names(tic_tt)
+
+summary(rules)
 ```
 
+We have set this parameters as the next questions doesn't require to have large amount of solutions and this ones are more than enough for it.
+
 ##5. List the 10 most frequent itemsets.
+To obtain the list with the most frequent itemsets we need to filter the repeated itemsets. 
 ```{r}
 fsets <- unique(generatingItemsets(rules))
 fsets.df <- as(fsets, "data.frame")
 sor.fsets <- fsets.df[order(-fsets.df$support),]
-sor.fsets[1:10,]
+sor.fsets[1:10,1]
 ```
-
+As we can see on this list, the most repeated itemsets are those ones above.
 ##6. List the first 10 rules sorted by the lift.
-
+To make this sorting we need to order by lift. 
 ```{r}
 top10.lift <- inspect(sort(rules, by="lift")[1:10])
 ```
 
 ##7. List the 10 rules according the lift, where the Consequent is "Pagament.a.traves.d.Internet.".
-
+On this part we first need to create a subset with only the rules that have "Pagament.a.traves.d.Internet." as the Consequent. Then, once the subset is created we proceed on doing the same as the last exercise, order by lift and thats all.
 ```{r}
 rulesConseq <- subset(rules, subset = rhs %in% c("Pagament.a.trav.s.d.Internet.=FALSE") )
 
