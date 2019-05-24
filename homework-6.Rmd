@@ -13,7 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-First of all, we are going to install and load all the libraries we need for this exercise.
+First of all, we are going to install and load all the libraries we need for this exercise. The factominer library is needed for the catdes function, which is needed on exercise 2. Then the arules function is needed to the the association rules.
+
 
 ```{r installing-packages, message=FALSE, results=FALSE, warning=FALSE}
 packages <- c("FactoMineR", "arules")
